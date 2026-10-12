@@ -1,956 +1,800 @@
 <!DOCTYPE html>
 <html lang="ru" class="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Помогатор Строителя</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        navy: {
-                            50: '#f0f4f8',
-                            100: '#d9e2ec',
-                            700: '#102a43',
-                            800: '#0b1b2b',
-                            900: '#06101e',
-                            950: '#030811'
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <style>
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        body { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Помогатор Строителя</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+darkMode: 'class',
+theme: {
+extend: {
+colors: {
+navy: {
+50: '#f0f4f8',
+100: '#d9e2ec',
+700: '#102a43',
+800: '#0b1b2b',
+900: '#06101e',
+950: '#030811'
+}
+}
+}
+}
+}
+</script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+body { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+</style>
 </head>
 <body class="bg-gray-100 dark:bg-navy-950 text-gray-800 dark:text-gray-100 min-h-screen pb-24 transition-colors duration-300">
-
-    <header class="sticky top-0 z-30 bg-white/90 dark:bg-navy-900/90 backdrop-blur-md border-b border-gray-200 dark:border-navy-700 shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <button id="openSidebarBtn" class="p-2 rounded-lg bg-gray-100 dark:bg-navy-800 hover:bg-gray-200 dark:hover:bg-navy-700 transition">
-                    <i data-lucide="menu" class="w-6 h-6 text-amber-500"></i>
-                </button>
-                <div class="flex items-center gap-2">
-                    <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-500 flex items-center justify-center text-white shadow-md shadow-amber-500/20">
-                        <i data-lucide="hard-hat" class="w-5 h-5"></i>
-                    </div>
-                    <div>
-                        <h1 class="font-bold text-lg leading-none text-gray-900 dark:text-white" id="appTitle">Помогатор Строителя</h1>
-                        <span class="text-xs text-amber-500 font-medium" id="headerSubtitle">Профессиональный расчёт</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Кнопка Поделиться -->
-            <button id="shareBtn" class="flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white px-3 py-2 rounded-xl text-xs font-semibold transition shadow-md shadow-amber-500/20 active:scale-95">
-                <i data-lucide="share-2" class="w-4 h-4"></i>
-                <span class="hidden sm:inline" id="shareBtnText">Поделиться</span>
-            </button>
-        </div>
-    </header>
-
-    <div id="sidebarOverlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 hidden transition-opacity duration-300"></div>
-
-    <aside id="sidebar" class="fixed top-0 left-0 bottom-0 w-80 max-w-[85vw] bg-white dark:bg-navy-900 z-50 transform -translate-x-full transition-transform duration-300 ease-in-out flex flex-col shadow-2xl border-r border-gray-200 dark:border-navy-800">
-        <div class="p-4 border-b border-gray-200 dark:border-navy-800 flex items-center justify-between bg-gray-50 dark:bg-navy-950/50">
-            <div class="flex items-center gap-2">
-                <i data-lucide="calculator" class="w-6 h-6 text-amber-500"></i>
-                <span class="font-bold text-lg" id="menuHeader">Калькуляторы</span>
-            </div>
-            <button id="closeSidebarBtn" class="p-1 rounded-lg hover:bg-gray-200 dark:hover:bg-navy-800 transition">
-                <i data-lucide="x" class="w-6 h-6"></i>
-            </button>
-        </div>
-
-        <nav class="flex-1 overflow-y-auto p-3 space-y-1 no-scrollbar" id="sidebarMenuList"></nav>
-
-        <div class="p-4 border-t border-gray-200 dark:border-navy-800 bg-gray-50 dark:bg-navy-950/50 space-y-4">
-            <div class="font-semibold text-xs tracking-wider uppercase text-gray-400" id="settingsHeader">НАСТРОЙКИ</div>
-            
-            <div class="flex items-center justify-between">
-                <div class="flex items-center gap-2 text-sm font-medium">
-                    <i data-lucide="moon" class="w-4 h-4 text-amber-500 hidden dark:block"></i>
-                    <i data-lucide="sun" class="w-4 h-4 text-amber-500 dark:hidden"></i>
-                    <span id="themeLabel">Тёмный режим</span>
-                </div>
-                <label class="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" id="themeToggle" class="sr-only peer" checked>
-                    <div class="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer dark:bg-navy-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:after:border-gray-600 peer-checked:bg-amber-500"></div>
-                </label>
-            </div>
-
-            <div class="space-y-1.5">
-                <label for="langSelect" class="text-sm font-medium block flex items-center gap-2">
-                    <i data-lucide="globe" class="w-4 h-4 text-amber-500"></i>
-                    <span id="langLabel">Язык интерфейса</span>
-                </label>
-                <select id="langSelect" class="w-full bg-white dark:bg-navy-800 border border-gray-300 dark:border-navy-700 rounded-lg p-2 text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none">
-                    <option value="ru">Русский</option>
-                    <option value="en">English</option>
-                    <option value="uz">O'zbekcha</option>
-                    <option value="tg">Тоҷикӣ</option>
-                    <option value="hy">Հայերեն</option>
-                    <option value="be">Беларуская</option>
-                    <option value="ka">ქართული</option>
-                    <option value="mo">Moldovenească</option>
-                    <option value="ky">Кыргызча</option>
-                    <option value="kk">Қазақша</option>
-                </select>
-            </div>
-        </div>
-    </aside>
-
-    <main class="max-w-4xl mx-auto px-4 pt-6 pb-12">
-        <div id="contentContainer">
-            <div id="calculatorContainer"></div>
-        </div>
-    </main>
-
-    <div id="bottomNav" class="fixed bottom-3 left-1/2 -translate-x-1/2 z-30 w-[92%] max-w-lg bg-white/90 dark:bg-navy-900/90 backdrop-blur-md border border-gray-200 dark:border-navy-700/80 rounded-2xl shadow-xl px-2 py-2">
-        <div class="flex items-center justify-around">
-            <button class="nav-bottom-btn flex flex-col items-center gap-1 p-2 rounded-xl text-amber-500 transition" data-target="home">
-                <i data-lucide="home" class="w-5 h-5"></i>
-                <span class="text-[10px] font-medium" data-i18n="navHome">Домой</span>
-            </button>
-            <button class="nav-bottom-btn flex flex-col items-center gap-1 p-2 rounded-xl text-gray-500 dark:text-gray-400 hover:text-amber-500 transition" data-target="about">
-                <i data-lucide="info" class="w-5 h-5"></i>
-                <span class="text-[10px] font-medium" data-i18n="navAbout">О нас</span>
-            </button>
-            <button class="nav-bottom-btn flex flex-col items-center gap-1 p-2 rounded-xl text-gray-500 dark:text-gray-400 hover:text-amber-500 transition" data-target="contacts">
-                <i data-lucide="phone" class="w-5 h-5"></i>
-                <span class="text-[10px] font-medium" data-i18n="navContacts">Контакты</span>
-            </button>
-            <button class="nav-bottom-btn flex flex-col items-center gap-1 p-2 rounded-xl text-gray-500 dark:text-gray-400 hover:text-amber-500 transition" data-target="privacy">
-                <i data-lucide="shield-check" class="w-5 h-5"></i>
-                <span class="text-[10px] font-medium" data-i18n="navPrivacy">Приваси</span>
-            </button>
-        </div>
-    </div>
-
-    <div id="shareModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
-        <div class="bg-white dark:bg-navy-900 border border-gray-200 dark:border-navy-700 rounded-2xl p-6 max-w-sm w-full shadow-2xl relative">
-            <button id="closeShareModal" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-white">
-                <i data-lucide="x" class="w-5 h-5"></i>
-            </button>
-            <div class="text-center space-y-3">
-                <div class="w-12 h-12 bg-amber-500/10 text-amber-500 rounded-full flex items-center justify-center mx-auto">
-                    <i data-lucide="share-2" class="w-6 h-6"></i>
-                </div>
-                <h3 class="font-bold text-lg" data-i18n="shareTitle">Поделиться приложением</h3>
-                <p class="text-sm text-gray-500 dark:text-gray-400" data-i18n="shareDesc">Отправьте ссылку коллегам или друзьям-строителям</p>
-                <div class="flex items-center gap-2 bg-gray-100 dark:bg-navy-950 p-2 rounded-xl border border-gray-200 dark:border-navy-800">
-                    <input type="text" id="shareUrlInput" readonly value="https://pomogator-builder.app" class="bg-transparent text-xs flex-1 border-none focus:outline-none px-2 font-mono">
-                    <button id="copyShareBtn" class="bg-amber-500 hover:bg-amber-600 text-white text-xs px-3 py-1.5 rounded-lg font-medium transition flex items-center gap-1">
-                        <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-                        <span id="copyBtnText">Копия</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        const translations = {
-            ru: {
-                appTitle: "Помогатор Строителя",
-                headerSubtitle: "Профессиональный расчёт",
-                shareBtnText: "Поделиться",
-                menuHeader: "Калькуляторы",
-                settingsHeader: "НАСТРОЙКИ",
-                themeLabel: "Тёмный режим",
-                langLabel: "Язык интерфейса",
-                navHome: "Домой",
-                navAbout: "О нас",
-                navContacts: "Контакты",
-                navPrivacy: "Приваси",
-                shareTitle: "Поделиться приложением",
-                shareDesc: "Скопируйте ссылку и отправьте коллегам"
-            },
-            en: {
-                appTitle: "Builder Helper",
-                headerSubtitle: "Professional calculation",
-                shareBtnText: "Share",
-                menuHeader: "Calculators",
-                settingsHeader: "SETTINGS",
-                themeLabel: "Dark mode",
-                langLabel: "Language",
-                navHome: "Home",
-                navAbout: "About Us",
-                navContacts: "Contacts",
-                navPrivacy: "Privacy",
-                shareTitle: "Share Application",
-                shareDesc: "Copy the link and send to colleagues"
-            },
-            uz: {
-                appTitle: "Quruvchi Yordamchisi",
-                headerSubtitle: "Professional hisob-kitob",
-                shareBtnText: "Ulashish",
-                menuHeader: "Kalkulyatorlar",
-                settingsHeader: "SOZLAMALAR",
-                themeLabel: "Tungi rejim",
-                langLabel: "Interfeys tili",
-                navHome: "Bosh sahifa",
-                navAbout: "Biz haqimizda",
-                navContacts: "Aloqa",
-                navPrivacy: "Maxfiylik",
-                shareTitle: "Ilovani ulashish",
-                shareDesc: "Hujjat havola nusxasini ko'chiring va hamkasblarga yuboring"
-            },
-            tg: {
-                appTitle: "Мададгори Сохтмончӣ",
-                headerSubtitle: "Ҳисоботи касбӣ",
-                shareBtnText: "Баҳамдиҳӣ",
-                menuHeader: "Калкуляторҳо",
-                settingsHeader: "ТАНЗИМОТ",
-                themeLabel: "Ҳолати торик",
-                langLabel: "Забони интерфейс",
-                navHome: "Асосӣ",
-                navAbout: "Дар бораи мо",
-                navContacts: "Тамос",
-                navPrivacy: "Маҳрамият",
-                shareTitle: "Фиристодани барнома",
-                shareDesc: "Истинодро нусхабардорӣ кунед ва ба ҳамкорон фиристед"
-            },
-            hy: {
-                appTitle: "Շինարարի Օգնական",
-                headerSubtitle: "Պրոֆեսիոնալ հաշվարկ",
-                shareBtnText: "Կիսվել",
-                menuHeader: "Հաշվիչներ",
-                settingsHeader: "ԿԱՐԳԱՎՈՐՈՒՄՆԵՐ",
-                themeLabel: "Մութ ռեժիմ",
-                langLabel: "Լեզու",
-                navHome: "Գլխավոր",
-                navAbout: "Մեր մասին",
-                navContacts: "Կապ",
-                navPrivacy: "Գաղտնիություն",
-                shareTitle: "Կիսվել հավելվածով",
-                shareDesc: "Պատճենեք հղումը և ուղարկեք գործընկերներին"
-            },
-            be: {
-                appTitle: "Памагатар Будаўніка",
-                headerSubtitle: "Прафесійны разлік",
-                shareBtnText: "Падзяліцца",
-                menuHeader: "Калькулятары",
-                settingsHeader: "НАЛАДКТ",
-                themeLabel: "Цёмны рэжым",
-                langLabel: "Мова інтэрфейсу",
-                navHome: "Дадому",
-                navAbout: "Пра нас",
-                navContacts: "Кантакты",
-                navPrivacy: "Прыватнасць",
-                shareTitle: "Падзяліцца дадаткам",
-                shareDesc: "Скапіруйце спасылку і адпраўце калегам"
-            },
-            ka: {
-                appTitle: "მშენებლის დამხმარე",
-                headerSubtitle: "პროფესიონალური გამოთვლა",
-                shareBtnText: "გაზიარება",
-                menuHeader: "კალკულატორები",
-                settingsHeader: "პარამეტრები",
-                themeLabel: "მუქი რეჟიმი",
-                langLabel: "ინტერფეისის ენა",
-                navHome: "მთავარი",
-                navAbout: "ჩვენ შესახებ",
-                navContacts: "კონტაქტები",
-                navPrivacy: "კონფიდენციალურობა",
-                shareTitle: "აპლიკაციის გაზიარება",
-                shareDesc: "დააკოპირეთ ბმული და გაუგზავნეთ კოლეგებს"
-            },
-            mo: {
-                appTitle: "Ajutorul Constructorului",
-                headerSubtitle: "Calcul profesional",
-                shareBtnText: "Distribuie",
-                menuHeader: "Calculatoare",
-                settingsHeader: "SETĂRI",
-                themeLabel: "Mod întunecat",
-                langLabel: "Limba interfeței",
-                navHome: "Acasă",
-                navAbout: "Despre noi",
-                navContacts: "Contacte",
-                navPrivacy: "Confidențialitate",
-                shareTitle: "Distribuie aplicația",
-                shareDesc: "Copiați linkul și trimiteți-l colegilor"
-            },
-            ky: {
-                appTitle: "Куруучунун Жардамчысы",
-                headerSubtitle: "Кесиптик эсептөө",
-                shareBtnText: "Бөлүшүү",
-                menuHeader: "Калькуляторлор",
-                settingsHeader: "ЖӨНӨТҮҮЛӨР",
-                themeLabel: "Караңгы режим",
-                langLabel: "Интерфейс тили",
-                navHome: "Башкы",
-                navAbout: "Биз жөнүндө",
-                navContacts: "Байланыштар",
-                navPrivacy: "Купуялуулук",
-                shareTitle: "Тиркемени бөлүшүү",
-                shareDesc: "Шилтемени көчүрүп кесиптештерге жөнөтүңүз"
-            },
-            kk: {
-                appTitle: "Құрылысшы Көмекшісі",
-                headerSubtitle: "Кәсіби есептеу",
-                shareBtnText: "Бөлісу",
-                menuHeader: "Калькуляторлар",
-                settingsHeader: "ПАРAМЕТРЛЕР",
-                themeLabel: "Қараңғы режим",
-                langLabel: "Интерфейс тілі",
-                navHome: "Басты",
-                navAbout: "Біз туралы",
-                navContacts: "Байланыстар",
-                navPrivacy: "Құпиялылық",
-                shareTitle: "Қолданбаны бөлісу",
-                shareDesc: "Сілтемені көшіріп, әріптестерге жіберіңіз"
-            }
-        };
-
-        const calculators = [
-            {
-                id: 'puttiness',
-                name: 'Шпаклёвка',
-                icon: 'layers',
-                desc: 'Расчёт расхода шпаклёвки по типу смеси и площади',
-                fields: [
-                    { id: 'type', label: 'Вид шпаклёвки', type: 'select', options: [
-                        { label: 'Финишная (1.2 кг/м²/мм)', value: 1.2 },
-                        { label: 'Стартовая (1.5 кг/м²/мм)', value: 1.5 },
-                        { label: 'Штукатурная (1.0 кг/м²/мм)', value: 1.0 },
-                        { label: 'Суперфиниш (1.1 кг/м²/мм)', value: 1.1 }
-                    ]},
-                    { id: 'area', label: 'Площадь стен (м²)', type: 'number', value: 25 },
-                    { id: 'thick', label: 'Толщина слоя (мм)', type: 'number', value: 2 },
-                    { id: 'bag', label: 'Вес мешка (кг)', type: 'number', value: 20 }
-                ],
-                calc: (v) => {
-                    const totalKg = v.area * v.type * v.thick;
-                    const bags = Math.ceil(totalKg / (v.bag || 1));
-                    return { totalKg: totalKg.toFixed(1), bags };
-                },
-                renderResult: (r) => `
-                    <p class="font-bold text-base">Результат расчёта:</p>
-                    <p class="text-sm">Общий вес: <strong class="text-amber-500">${r.totalKg} кг</strong></p>
-                    <p class="text-sm">Потребуется мешков: <strong class="text-amber-500 text-lg">${r.bags} шт.</strong></p>
-                `
-            },
-            {
-                id: 'wallpaper',
-                name: 'Обои по стенам',
-                icon: 'grid',
-                desc: 'Расчёт рулонов обоев с учётом окон и дверей',
-                fields: [
-                    { id: 'length', label: 'Длина комнаты (м)', type: 'number', value: 5 },
-                    { id: 'width', label: 'Ширина комнаты (м)', type: 'number', value: 4 },
-                    { id: 'height', label: 'Высота потолка (м)', type: 'number', value: 2.7 },
-                    { id: 'rollSize', label: 'Размер рулона', type: 'select', options: [
-                        { label: '0.53 м х 10.05 м', value: '0.53_10' },
-                        { label: '1.06 м х 10.05 м (Евро)', value: '1.06_10' },
-                        { label: '1.06 м х 25 м', value: '1.06_25' }
-                    ]},
-                    { id: 'deductions', label: 'Вычет окон и дверей (м²)', type: 'number', value: 6 },
-                    { id: 'repeat', label: 'Раппорт/подгонка рисунка (см)', type: 'number', value: 0 }
-                ],
-                calc: (v) => {
-                    const perimeter = (v.length + v.width) * 2;
-                    const wallArea = perimeter * v.height - v.deductions;
-                    let rollW = 0.53, rollL = 10;
-                    if (v.rollSize === '1.06_10') { rollW = 1.06; rollL = 10; }
-                    if (v.rollSize === '1.06_25') { rollW = 1.06; rollL = 25; }
-                    
-                    const singleStripLen = v.height + (v.repeat / 100);
-                    const stripsPerRoll = Math.floor(rollL / singleStripLen);
-                    const totalStripsNeeded = Math.ceil(perimeter / rollW);
-                    const rollsNeeded = Math.ceil(totalStripsNeeded / (stripsPerRoll || 1));
-
-                    return { wallArea: wallArea.toFixed(1), rollsNeeded, totalStripsNeeded };
-                },
-                renderResult: (r) => `
-                    <p class="font-bold text-base">Результат расчёта:</p>
-                    <p class="text-sm">Площадь оклейки: <strong class="text-amber-500">${r.wallArea} м²</strong></p>
-                    <p class="text-sm">Всего полос: <strong class="text-amber-500">${r.totalStripsNeeded} шт.</strong></p>
-                    <p class="text-sm">Потребуется рулонов: <strong class="text-amber-500 text-lg">${r.rollsNeeded} шт.</strong></p>
-                `
-            },
-            {
-                id: 'paint',
-                name: 'Краска (все виды)',
-                icon: 'paint-bucket',
-                desc: 'Расчёт краски для всех видов поверхностей и составов',
-                fields: [
-                    { id: 'type', label: 'Тип краски', type: 'select', options: [
-                        { label: 'Водоэмульсионная (120 мл/м²)', value: 120 },
-                        { label: 'Акриловая (150 мл/м²)', value: 150 },
-                        { label: 'Латексная (110 мл/м²)', value: 110 },
-                        { label: 'Силиконовая (140 мл/м²)', value: 140 },
-                        { label: 'Эмаль НЦ/ПФ (160 мл/м²)', value: 160 },
-                        { label: 'Фасадная (180 мл/м²)', value: 180 }
-                    ]},
-                    { id: 'area', label: 'Площадь окраски (м²)', type: 'number', value: 40 },
-                    { id: 'layers', label: 'Количество слоёв', type: 'number', value: 2 },
-                    { id: 'margin', label: 'Запас (%)', type: 'number', value: 10 }
-                ],
-                calc: (v) => {
-                    const totalLiters = (v.area * v.type * v.layers * (1 + v.margin / 100)) / 1000;
-                    return { liters: totalLiters.toFixed(2) };
-                },
-                renderResult: (r) => `
-                    <p class="font-bold text-base">Результат расчёта:</p>
-                    <p class="text-sm">Необходимый объём: <strong class="text-amber-500 text-lg">${r.liters} л</strong></p>
-                `
-            },
-            {
-                id: 'collering',
-                name: 'Колеровка',
-                icon: 'palette',
-                desc: 'Расчёт колер-пасты для всех типов смесей',
-                fields: [
-                    { id: 'mixType', label: 'Вид колеруемой смеси', type: 'select', options: [
-                        { label: 'Водоэмульсионная краска', value: 'paint' },
-                        { label: 'Декоративная штукатурка', value: 'stucco' },
-                        { label: 'Акриловая шпаклёвка', value: 'putty' },
-                        { label: 'Лаки и эмали', value: 'varnish' }
-                    ]},
-                    { id: 'volume', label: 'Объём основной базы (л/кг)', type: 'number', value: 10 },
-                    { id: 'intensity', label: 'Насыщенность тона', type: 'select', options: [
-                        { label: 'Пастельный (1% колера)', value: 0.01 },
-                        { label: 'Средний тон (3% колера)', value: 0.03 },
-                        { label: 'Насыщенный (5% колера)', value: 0.05 },
-                        { label: 'Яркий/Ядовитый (10% колера)', value: 0.10 }
-                    ]}
-                ],
-                calc: (v) => {
-                    const colorantMl = v.volume * v.intensity * 1000;
-                    return { colorantMl: colorantMl.toFixed(0) };
-                },
-                renderResult: (r) => `
-                    <p class="font-bold text-base">Результат колеровки:</p>
-                    <p class="text-sm">Объём колер-пасты: <strong class="text-amber-500 text-lg">${r.colorantMl} мл</strong></p>
-                `
-            },
-            {
-                id: 'concrete-sand',
-                name: 'Цемент и песок',
-                icon: 'box',
-                desc: 'Расчёт компонентов раствора по марке цемента',
-                fields: [
-                    { id: 'mark', label: 'Марка цемента / раствора', type: 'select', options: [
-                        { label: 'Раствор М75 (Цемент М400 + 4.5 песка)', value: 'M75' },
-                        { label: 'Раствор М100 (Цемент М400 + 3.5 песка)', value: 'M100' },
-                        { label: 'Раствор М150 (Цемент М400 + 2.8 песка)', value: 'M150' },
-                        { label: 'Бетон М200 (Цемент М400 + 2.8 песка + 4.8 щебня)', value: 'M200' }
-                    ]},
-                    { id: 'volume', label: 'Требуемый объём раствора (м³)', type: 'number', value: 1 }
-                ],
-                calc: (v) => {
-                    let cementKg = 300, sandKg = 1200, gravelKg = 0;
-                    if (v.mark === 'M75') { cementKg = 260; sandKg = 1250; }
-                    if (v.mark === 'M100') { cementKg = 320; sandKg = 1150; }
-                    if (v.mark === 'M150') { cementKg = 400; sandKg = 1100; }
-                    if (v.mark === 'M200') { cementKg = 330; sandKg = 850; gravelKg = 1250; }
-
-                    return {
-                        cement: (cementKg * v.volume).toFixed(0),
-                        cementBags: Math.ceil((cementKg * v.volume) / 50),
-                        sand: (sandKg * v.volume).toFixed(0),
-                        gravel: (gravelKg * v.volume).toFixed(0)
-                    };
-                },
-                renderResult: (r) => `
-                    <p class="font-bold text-base">Результат расчёта:</p>
-                    <p class="text-sm">Цемент (М400): <strong class="text-amber-500">${r.cement} кг</strong> (${r.cementBags} меш. по 50кг)</p>
-                    <p class="text-sm">Песок: <strong class="text-amber-500">${r.sand} кг</strong></p>
-                    ${r.gravel > 0 ? `<p class="text-sm">Щебень: <strong class="text-amber-500">${r.gravel} кг</strong></p>` : ''}
-                `
-            },
-            {
-                id: 'decor-stucco',
-                name: 'Декоративная штукатурка',
-                icon: 'sparkles',
-                desc: 'Все виды декоративных покрытий',
-                fields: [
-                    { id: 'type', label: 'Вид покрытия', type: 'select', options: [
-                        { label: 'Короед (2.5 - 3.5 кг/м²)', value: 3.0 },
-                        { label: 'Барашек (2.0 - 3.0 кг/м²)', value: 2.5 },
-                        { label: 'Венецианская (0.6 - 1.0 кг/м²)', value: 0.8 },
-                        { label: 'Шелк / Велюр (0.2 - 0.5 кг/м²)', value: 0.35 },
-                        { label: 'Арт-бетон / Травертин (1.8 - 2.5 кг/м²)', value: 2.1 }
-                    ]},
-                    { id: 'area', label: 'Площадь нанесения (м²)', type: 'number', value: 20 },
-                    { id: 'primer', label: 'Нужна грунтовка под штукатурку?', type: 'select', options: [
-                        { label: 'Да (Бетоноконтакт / Кварц-грунт)', value: 0.3 },
-                        { label: 'Нет', value: 0 }
-                    ]}
-                ],
-                calc: (v) => {
-                    const totalKg = v.area * v.type;
-                    const primerKg = v.area * v.primer;
-                    return { totalKg: totalKg.toFixed(1), primerKg: primerKg.toFixed(1) };
-                },
-                renderResult: (r) => `
-                    <p class="font-bold text-base">Результат расчёта:</p>
-                    <p class="text-sm">Штукатурка: <strong class="text-amber-500 text-lg">${r.totalKg} кг</strong></p>
-                    ${r.primerKg > 0 ? `<p class="text-sm">Кварц-грунт: <strong class="text-amber-500">${r.primerKg} кг</strong></p>` : ''}
-                `
-            },
-            {
-                id: 'penoplex',
-                name: 'Обшивка пеноплексом',
-                icon: 'shield',
-                desc: 'Расчёт XPS панелей и клея',
-                fields: [
-                    { id: 'area', label: 'Площадь утепления (м²)', type: 'number', value: 30 },
-                    { id: 'thickness', label: 'Толщина плиты', type: 'select', options: [
-                        { label: '20 мм (0.288 м² в плите, 20 шт/пач)', value: '20' },
-                        { label: '30 мм (0.288 м² в плите, 13 шт/пач)', value: '30' },
-                        { label: '50 мм (0.288 м² в плите, 8 шт/пач)', value: '50' },
-                        { label: '100 мм (0.288 м² в плите, 4 шт/пач)', value: '100' }
-                    ]}
-                ],
-                calc: (v) => {
-                    const sheetArea = 0.288;
-                    const totalSheets = Math.ceil(v.area / sheetArea);
-                    let perPack = 8;
-                    if (v.thickness === '20') perPack = 20;
-                    if (v.thickness === '30') perPack = 13;
-                    if (v.thickness === '100') perPack = 4;
-                    const packs = Math.ceil(totalSheets / perPack);
-                    const foamCans = Math.ceil(v.area / 10);
-
-                    return { totalSheets, packs, foamCans };
-                },
-                renderResult: (r) => `
-                    <p class="font-bold text-base">Результат расчёта:</p>
-                    <p class="text-sm">Всего плит: <strong class="text-amber-500">${r.totalSheets} шт.</strong></p>
-                    <p class="text-sm">Упаковок: <strong class="text-amber-500 text-lg">${r.packs} пач.</strong></p>
-                    <p class="text-sm">Клей-пена (баллоны 750мл): <strong class="text-amber-500">${r.foamCans} шт.</strong></p>
-                `
-            },
-            {
-                id: 'pvc-panels',
-                name: 'ПВХ панели',
-                icon: 'layout',
-                desc: 'Расчёт стеновых и потолочных ПВХ панелей',
-                fields: [
-                    { id: 'length', label: 'Длина стены/потолка (м)', type: 'number', value: 4 },
-                    { id: 'width', label: 'Ширина/Высота (м)', type: 'number', value: 2.5 },
-                    { id: 'panelW', label: 'Ширина панели', type: 'select', options: [
-                        { label: '250 мм (0.25 м)', value: 0.25 },
-                        { label: '375 мм (0.375 м)', value: 0.375 },
-                        { label: '500 мм (0.50 м)', value: 0.50 },
-                        { label: '100 мм (Вагонка 0.1 м)', value: 0.10 }
-                    ]},
-                    { id: 'panelL', label: 'Длина панели', type: 'select', options: [
-                        { label: '2.7 м', value: 2.7 },
-                        { label: '3.0 м', value: 3.0 },
-                        { label: '6.0 м', value: 6.0 }
-                    ]}
-                ],
-                calc: (v) => {
-                    const totalArea = v.length * v.width;
-                    const countByWidth = Math.ceil(v.length / v.panelW);
-                    const profilesCount = Math.ceil((v.length * 2 + v.width * 2) / 3); // L-профиль
-                    return { totalArea: totalArea.toFixed(1), panels: countByWidth, profilesCount };
-                },
-                renderResult: (r) => `
-                    <p class="font-bold text-base">Результат расчёта:</p>
-                    <p class="text-sm">Площадь: <strong class="text-amber-500">${r.totalArea} м²</strong></p>
-                    <p class="text-sm">Количество панелей: <strong class="text-amber-500 text-lg">${r.panels} шт.</strong></p>
-                    <p class="text-sm">Стартовый профиль (3м): <strong class="text-amber-500">${r.profilesCount} шт.</strong></p>
-                `
-            },
-            {
-                id: 'floor-tile',
-                name: 'Напольная плитка',
-                icon: 'grid',
-                desc: 'Расчёт керамической плитки и керамогранита',
-                fields: [
-                    { id: 'area', label: 'Площадь пола (м²)', type: 'number', value: 15 },
-                    { id: 'tileSize', label: 'Размер плитки (см)', type: 'select', options: [
-                        { label: '30 x 30 см', value: '30x30' },
-                        { label: '40 x 40 см', value: '40x40' },
-                        { label: '60 x 60 см (Керамогранит)', value: '60x60' },
-                        { label: '120 x 60 см', value: '120x60' },
-                        { label: '15 x 60 см (Под дерево)', value: '15x60' }
-                    ]},
-                    { id: 'layout', label: 'Укладка', type: 'select', options: [
-                        { label: 'Прямая (+10% запаса)', value: 1.10 },
-                        { label: 'Диагональная (+15% запаса)', value: 1.15 }
-                    ]}
-                ],
-                calc: (v) => {
-                    let w = 0.3, h = 0.3;
-                    if (v.tileSize === '40x40') { w = 0.4; h = 0.4; }
-                    if (v.tileSize === '60x60') { w = 0.6; h = 0.6; }
-                    if (v.tileSize === '120x60') { w = 1.2; h = 0.6; }
-                    if (v.tileSize === '15x60') { w = 0.15; h = 0.6; }
-
-                    const tileArea = w * h;
-                    const totalTiles = Math.ceil((v.area * v.layout) / tileArea);
-                    const glueBags = Math.ceil((v.area * 4.5) / 25); // 4.5 кг/м2
-
-                    return { totalTiles, glueBags };
-                },
-                renderResult: (r) => `
-                    <p class="font-bold text-base">Результат расчёта:</p>
-                    <p class="text-sm">Плитки с учётом запаса: <strong class="text-amber-500 text-lg">${r.totalTiles} шт.</strong></p>
-                    <p class="text-sm">Плиточный клей (25кг): <strong class="text-amber-500">${r.glueBags} меш.</strong></p>
-                `
-            },
-            {
-                id: 'masonry',
-                name: 'Кладка блоков и кирпича',
-                icon: 'bricks',
-                desc: 'Кирпич, керамзитоблок, газоблок',
-                fields: [
-                    { id: 'material', label: 'Материал кладки', type: 'select', options: [
-                        { label: 'Кирпич одинарный (250х120х65 мм)', value: 'brick_single' },
-                        { label: 'Кирпич полуторный (250х120х88 мм)', value: 'brick_oneandhalf' },
-                        { label: 'Газоблок (600х300х200 мм)', value: 'gas_block' },
-                        { label: 'Керамзитоблок (390х190х190 мм)', value: 'clay_block' }
-                    ]},
-                    { id: 'wallLen', label: 'Длина стен (м)', type: 'number', value: 20 },
-                    { id: 'wallH', label: 'Высота стен (м)', type: 'number', value: 3 },
-                    { id: 'thickness', label: 'Толщина кладки', type: 'select', options: [
-                        { label: 'В полкирпича / полблока', value: 'half' },
-                        { label: 'В один кирпич / блок', value: 'full' }
-                    ]}
-                ],
-                calc: (v) => {
-                    const area = v.wallLen * v.wallH;
-                    let perM2 = 51; // одинарный в полкирпича
-                    if (v.material === 'brick_single' && v.thickness === 'full') perM2 = 102;
-                    if (v.material === 'brick_oneandhalf' && v.thickness === 'half') perM2 = 39;
-                    if (v.material === 'brick_oneandhalf' && v.thickness === 'full') perM2 = 78;
-                    if (v.material === 'gas_block' && v.thickness === 'half') perM2 = 8.3;
-                    if (v.material === 'gas_block' && v.thickness === 'full') perM2 = 16.6;
-                    if (v.material === 'clay_block' && v.thickness === 'half') perM2 = 12.5;
-                    if (v.material === 'clay_block' && v.thickness === 'full') perM2 = 25;
-
-                    const totalUnits = Math.ceil(area * perM2);
-                    return { area: area.toFixed(1), totalUnits };
-                },
-                renderResult: (r) => `
-                    <p class="font-bold text-base">Результат расчёта:</p>
-                    <p class="text-sm">Площадь кладки: <strong class="text-amber-500">${r.area} м²</strong></p>
-                    <p class="text-sm">Необходимо элементов: <strong class="text-amber-500 text-lg">${r.totalUnits} шт.</strong></p>
-                `
-            },
-            {
-                id: 'ceiling-tile',
-                name: 'Потолочная плитка',
-                icon: 'square',
-                desc: 'Расчёт пенопластовой плитки на потолок',
-                fields: [
-                    { id: 'length', label: 'Длина комнаты (м)', type: 'number', value: 4 },
-                    { id: 'width', label: 'Ширина комнаты (м)', type: 'number', value: 3 },
-                    { id: 'tileSize', label: 'Размер плитки', type: 'select', options: [
-                        { label: '50 x 50 см', value: 0.25 },
-                        { label: '30 x 30 см', value: 0.09 },
-                        { label: '60 x 60 см', value: 0.36 }
-                    ]}
-                ],
-                calc: (v) => {
-                    const area = v.length * v.width;
-                    const count = Math.ceil((area * 1.1) / v.tileSize);
-                    const glueKg = Math.ceil(area * 0.25);
-                    return { area: area.toFixed(1), count, glueKg };
-                },
-                renderResult: (r) => `
-                    <p class="font-bold text-base">Результат расчёта:</p>
-                    <p class="text-sm">Площадь потолка: <strong class="text-amber-500">${r.area} м²</strong></p>
-                    <p class="text-sm">Плитки (с запасом 10%): <strong class="text-amber-500 text-lg">${r.count} шт.</strong></p>
-                    <p class="text-sm">Клей жидкие гвозди/мастика: <strong class="text-amber-500">~${r.glueKg} кг</strong></p>
-                `
-            },
-            {
-                id: 'plinth',
-                name: 'Плинтус',
-                icon: 'minus',
-                desc: 'Расчёт напольного и потолочного плинтуса',
-                fields: [
-                    { id: 'perimeter', label: 'Периметр помещения (м)', type: 'number', value: 18 },
-                    { id: 'doors', label: 'Ширина дверных проёмов (м)', type: 'number', value: 0.9 },
-                    { id: 'plinthLen', label: 'Длина одной планки (м)', type: 'number', value: 2.5 }
-                ],
-                calc: (v) => {
-                    const netPerimeter = Math.max(0, v.perimeter - v.doors);
-                    const count = Math.ceil((netPerimeter * 1.05) / v.plinthLen);
-                    return { netPerimeter: netPerimeter.toFixed(1), count };
-                },
-                renderResult: (r) => `
-                    <p class="font-bold text-base">Результат расчёта:</p>
-                    <p class="text-sm">Чистый периметр: <strong class="text-amber-500">${r.netPerimeter} м</strong></p>
-                    <p class="text-sm">Планки плинтуса: <strong class="text-amber-500 text-lg">${r.count} шт.</strong></p>
-                `
-            },
-            {
-                id: 'self-leveling',
-                name: 'Наливной пол / Стяжка',
-                icon: 'box',
-                desc: 'Расчёт смеси для выравнивания полов',
-                fields: [
-                    { id: 'area', label: 'Площадь пола (м²)', type: 'number', value: 20 },
-                    { id: 'thick', label: 'Толщина слоя (мм)', type: 'number', value: 10 },
-                    { id: 'rate', label: 'Расход смеси (кг/м²/мм)', type: 'number', value: 1.5 },
-                    { id: 'bag', label: 'Вес мешка (кг)', type: 'number', value: 25 }
-                ],
-                calc: (v) => {
-                    const totalKg = v.area * v.thick * v.rate;
-                    const bags = Math.ceil(totalKg / (v.bag || 1));
-                    return { totalKg: totalKg.toFixed(1), bags };
-                },
-                renderResult: (r) => `
-                    <p class="font-bold text-base">Результат расчёта:</p>
-                    <p class="text-sm">Смеси всего: <strong class="text-amber-500">${r.totalKg} кг</strong></p>
-                    <p class="text-sm">Потребуется мешков: <strong class="text-amber-500 text-lg">${r.bags} шт.</strong></p>
-                `
-            }
-        ];
-
-        let currentLang = 'ru';
-        let activeCalcId = 'puttiness';
-        let activeTab = 'home';
-
-        document.addEventListener('DOMContentLoaded', () => {
-            initSidebar();
-            initTheme();
-            initLanguage();
-            initShareModal();
-            initBottomNav();
-            renderSidebarMenu();
-            renderCalculator(activeCalcId);
-            lucide.createIcons();
-        });
-
-        function initSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('sidebarOverlay');
-            document.getElementById('openSidebarBtn').addEventListener('click', () => {
-                sidebar.classList.remove('-translate-x-full');
-                overlay.classList.remove('hidden');
-            });
-            const close = () => {
-                sidebar.classList.add('-translate-x-full');
-                overlay.classList.add('hidden');
-            };
-            document.getElementById('closeSidebarBtn').addEventListener('click', close);
-            overlay.addEventListener('click', close);
-        }
-
-        function initTheme() {
-            document.getElementById('themeToggle').addEventListener('change', (e) => {
-                if (e.target.checked) document.documentElement.classList.add('dark');
-                else document.documentElement.classList.remove('dark');
-            });
-        }
-
-        function initLanguage() {
-            document.getElementById('langSelect').addEventListener('change', (e) => {
-                currentLang = e.target.value;
-                applyTranslations();
-            });
-        }
-
-        function applyTranslations() {
-            const lang = translations[currentLang] || translations.ru;
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                if (lang[key]) el.textContent = lang[key];
-            });
-            document.getElementById('appTitle').textContent = lang.appTitle;
-            document.getElementById('headerSubtitle').textContent = lang.headerSubtitle;
-            document.getElementById('shareBtnText').textContent = lang.shareBtnText;
-            document.getElementById('menuHeader').textContent = lang.menuHeader;
-            document.getElementById('settingsHeader').textContent = lang.settingsHeader;
-            document.getElementById('themeLabel').textContent = lang.themeLabel;
-            document.getElementById('langLabel').textContent = lang.langLabel;
-        }
-
-        function initShareModal() {
-            const modal = document.getElementById('shareModal');
-            document.getElementById('shareBtn').addEventListener('click', () => {
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-            });
-            document.getElementById('closeShareModal').addEventListener('click', () => {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-            });
-            document.getElementById('copyShareBtn').addEventListener('click', () => {
-                const input = document.getElementById('shareUrlInput');
-                input.select();
-                document.execCommand('copy');
-                document.getElementById('copyBtnText').textContent = 'Готово!';
-                setTimeout(() => { document.getElementById('copyBtnText').textContent = 'Копия'; }, 2000);
-            });
-        }
-
-        function initBottomNav() {
-            document.querySelectorAll('.nav-bottom-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const target = btn.getAttribute('data-target');
-                    activeTab = target;
-
-                    document.querySelectorAll('.nav-bottom-btn').forEach(b => {
-                        b.classList.remove('text-amber-500');
-                        b.classList.add('text-gray-500', 'dark:text-gray-400');
-                    });
-                    btn.classList.add('text-amber-500');
-                    btn.classList.remove('text-gray-500', 'dark:text-gray-400');
-
-                    renderTabContent(target);
-                });
-            });
-        }
-
-        function renderSidebarMenu() {
-            const container = document.getElementById('sidebarMenuList');
-            container.innerHTML = calculators.map(item => {
-                const isActive = item.id === activeCalcId && activeTab === 'home';
-                const activeClasses = isActive 
-                    ? 'bg-amber-500 text-white font-semibold shadow-md shadow-amber-500/20' 
-                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-navy-800';
-                
-                return `
-                    <button onclick="switchCalculator('${item.id}')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition ${activeClasses}">
-                        <i data-lucide="${item.icon || 'calculator'}" class="w-4 h-4"></i>
-                        <span>${item.name}</span>
-                    </button>
-                `;
-            }).join('');
-            lucide.createIcons();
-        }
-
-        function switchCalculator(id) {
-            activeCalcId = id;
-            activeTab = 'home';
-            renderSidebarMenu();
-            renderCalculator(id);
-            document.getElementById('sidebar').classList.add('-translate-x-full');
-            document.getElementById('sidebarOverlay').classList.add('hidden');
-        }
-
-        function renderTabContent(target) {
-            const container = document.getElementById('contentContainer');
-            if (target === 'home') {
-                renderCalculator(activeCalcId);
-            } else if (target === 'about') {
-                container.innerHTML = `
-                    <div class="bg-white dark:bg-navy-900 border border-gray-200 dark:border-navy-800 rounded-2xl p-6 shadow-lg space-y-4">
-                        <h2 class="text-xl font-bold text-amber-500 flex items-center gap-2">
-                            <i data-lucide="info" class="w-6 h-6"></i> О приложении «Помогатор Строителя»
-                        </h2>
-                        <p class="text-sm leading-relaxed text-gray-600 dark:text-gray-300">
-                            <strong>Помогатор Строителя</strong> — это удобный универсальный карманный калькулятор для мастеров, прорабов и всех, кто делает ремонт своими руками.
-                        </p>
-                        <p class="text-sm leading-relaxed text-gray-600 dark:text-gray-300">
-                            Все расчёты выполняются мгновенно прямо на вашем устройстве с минимальными погрешностями и учётом технологических запасов материалов.
-                        </p>
-                    </div>
-                `;
-            } else if (target === 'contacts') {
-                container.innerHTML = `
-                    <div class="bg-white dark:bg-navy-900 border border-gray-200 dark:border-navy-800 rounded-2xl p-6 shadow-lg space-y-4">
-                        <h2 class="text-xl font-bold text-amber-500 flex items-center gap-2">
-                            <i data-lucide="phone" class="w-6 h-6"></i> Контакты и поддержка
-                        </h2>
-                        <p class="text-sm text-gray-600 dark:text-gray-300">По вопросам сотрудничества, обратной связи и пожеланий:</p>
-                        <ul class="space-y-2 text-sm">
-                            <li class="flex items-center gap-2"><i data-lucide="mail" class="w-4 h-4 text-amber-500"></i> support@pomogator-builder.app</li>
-                            <li class="flex items-center gap-2"><i data-lucide="message-square" class="w-4 h-4 text-amber-500"></i> Telegram: @builder_helper_bot</li>
-                        </ul>
-                    </div>
-                `;
-            } else if (target === 'privacy') {
-                container.innerHTML = `
-                    <div class="bg-white dark:bg-navy-900 border border-gray-200 dark:border-navy-800 rounded-2xl p-6 shadow-lg space-y-4">
-                        <h2 class="text-xl font-bold text-amber-500 flex items-center gap-2">
-                            <i data-lucide="shield-check" class="w-6 h-6"></i> Политика приватности
-                        </h2>
-                        <p class="text-sm leading-relaxed text-gray-600 dark:text-gray-300">
-                            Приложение не собирает, не передаёт и не хранит ваши личные персональные данные на сторонних серверах. Все вычисления производятся локально в вашем браузере.
-                        </p>
-                    </div>
-                `;
-            }
-            lucide.createIcons();
-        }
-
-        function renderCalculator(id) {
-            const container = document.getElementById('contentContainer');
-            const calc = calculators.find(c => c.id === id) || calculators[0];
-
-            if (!calc) return;
-
-            let fieldsHtml = calc.fields.map(f => {
-                if (f.type === 'select') {
-                    const optionsHtml = f.options.map(o => `<option value="${o.value}">${o.label}</option>`).join('');
-                    return `
-                        <div>
-                            <label class="block text-xs font-semibold mb-1">${f.label}</label>
-                            <select id="field_${f.id}" class="w-full bg-gray-50 dark:bg-navy-800 border border-gray-300 dark:border-navy-700 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none">
-                                ${optionsHtml}
-                            </select>
-                        </div>
-                    `;
-                }
-                return `
-                    <div>
-                        <label class="block text-xs font-semibold mb-1">${f.label}</label>
-                        <input type="${f.type || 'number'}" id="field_${f.id}" value="${f.value}" class="w-full bg-gray-50 dark:bg-navy-800 border border-gray-300 dark:border-navy-700 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none">
-                    </div>
-                `;
-            }).join('');
-
-            container.innerHTML = `
-                <div class="bg-white dark:bg-navy-900 border border-gray-200 dark:border-navy-800 rounded-2xl p-5 shadow-lg space-y-5">
-                    <div class="flex items-center gap-3 border-b border-gray-100 dark:border-navy-800 pb-3">
-                        <div class="p-2.5 bg-amber-500/10 text-amber-500 rounded-xl"><i data-lucide="${calc.icon || 'calculator'}" class="w-6 h-6"></i></div>
-                        <div>
-                            <h2 class="text-lg font-bold">${calc.name}</h2>
-                            <p class="text-xs text-gray-400">${calc.desc || ''}</p>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        ${fieldsHtml}
-                    </div>
-                    <button onclick="executeCalculation('${calc.id}')" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-semibold py-3 rounded-xl transition shadow-md shadow-amber-500/20 active:scale-[0.99]">Рассчитать</button>
-                    <div id="calcResult" class="hidden p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl space-y-1"></div>
-                </div>
-            `;
-            lucide.createIcons();
-        }
-
-        function executeCalculation(id) {
-            const calc = calculators.find(c => c.id === id);
-            if (!calc) return;
-
-            const fieldValues = {};
-            calc.fields.forEach(f => {
-                const el = document.getElementById(`field_${f.id}`);
-                let val = el.value;
-                if (f.type !== 'select' || !isNaN(parseFloat(val))) {
-                    val = parseFloat(val) || 0;
-                }
-                fieldValues[f.id] = val;
-            });
-
-            try {
-                const res = calc.calc(fieldValues);
-                const resDiv = document.getElementById('calcResult');
-                resDiv.classList.remove('hidden');
-                resDiv.innerHTML = calc.renderResult(res);
-            } catch(e) {
-                console.error(e);
-            }
-        }
-    </script>
+​<header class="sticky top-0 z-30 bg-white/90 dark:bg-navy-900/90 backdrop-blur-md border-b border-gray-200 dark:border-navy-700 shadow-sm">
+<div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<button id="openSidebarBtn" class="p-2 rounded-lg bg-gray-100 dark:bg-navy-800 hover:bg-gray-200 dark:hover:bg-navy-700 transition">
+<i data-lucide="menu" class="w-6 h-6 text-amber-500"></i>
+</button>
+<div class="flex items-center gap-2">
+<div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-500 flex items-center justify-center text-white shadow-md shadow-amber-500/20">
+<i data-lucide="hard-hat" class="w-5 h-5"></i>
+</div>
+<div>
+<h1 class="font-bold text-lg leading-none text-gray-900 dark:text-white" id="appTitle">Помогатор Строителя</h1>
+<span class="text-xs text-amber-500 font-medium" id="headerSubtitle">Профессиональный расчёт</span>
+</div>
+</div>
+</div>
+​<!-- Кнопка Поделиться -->
+<button id="shareBtn" class="flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white px-3 py-2 rounded-xl text-xs font-semibold transition shadow-md shadow-amber-500/20 active:scale-95">
+<i data-lucide="share-2" class="w-4 h-4"></i>
+<span class="hidden sm:inline" id="shareBtnText">Поделиться</span>
+</button>
+</div>
+</header>
+​<div id="sidebarOverlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 hidden transition-opacity duration-300"></div>
+​<aside id="sidebar" class="fixed top-0 left-0 bottom-0 w-80 max-w-[85vw] bg-white dark:bg-navy-900 z-50 transform -translate-x-full transition-transform duration-300 ease-in-out flex flex-col shadow-2xl border-r border-gray-200 dark:border-navy-800">
+<div class="p-4 border-b border-gray-200 dark:border-navy-800 flex items-center justify-between bg-gray-50 dark:bg-navy-950/50">
+<div class="flex items-center gap-2">
+<i data-lucide="calculator" class="w-6 h-6 text-amber-500"></i>
+<span class="font-bold text-lg" id="menuHeader">Калькуляторы</span>
+</div>
+<button id="closeSidebarBtn" class="p-1 rounded-lg hover:bg-gray-200 dark:hover:bg-navy-800 transition">
+<i data-lucide="x" class="w-6 h-6"></i>
+</button>
+</div>
+​<nav class="flex-1 overflow-y-auto p-3 space-y-1 no-scrollbar" id="sidebarMenuList"></nav>
+​<div class="p-4 border-t border-gray-200 dark:border-navy-800 bg-gray-50 dark:bg-navy-950/50 space-y-4">
+<div class="font-semibold text-xs tracking-wider uppercase text-gray-400" id="settingsHeader">НАСТРОЙКИ</div>
+​<div class="flex items-center justify-between">
+<div class="flex items-center gap-2 text-sm font-medium">
+<i data-lucide="moon" class="w-4 h-4 text-amber-500 hidden dark:block"></i>
+<i data-lucide="sun" class="w-4 h-4 text-amber-500 dark:hidden"></i>
+<span id="themeLabel">Тёмный режим</span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input type="checkbox" id="themeToggle" class="sr-only peer" checked>
+<div class="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer dark:bg-navy-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:after:border-gray-600 peer-checked:bg-amber-500"></div>
+</label>
+</div>
+​<div class="space-y-1.5">
+<label for="langSelect" class="text-sm font-medium block flex items-center gap-2">
+<i data-lucide="globe" class="w-4 h-4 text-amber-500"></i>
+<span id="langLabel">Язык интерфейса</span>
+</label>
+<select id="langSelect" class="w-full bg-white dark:bg-navy-800 border border-gray-300 dark:border-navy-700 rounded-lg p-2 text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none">
+<option value="ru">Русский</option>
+<option value="en">English</option>
+<option value="uz">O'zbekcha</option>
+<option value="tg">Тоҷикӣ</option>
+<option value="hy">Հայերեն</option>
+<option value="be">Беларуская</option>
+<option value="ka">ქართული</option>
+<option value="mo">Moldovenească</option>
+<option value="ky">Кыргызча</option>
+<option value="kk">Қазақша</option>
+</select>
+</div>
+</div>
+</aside>
+​<main class="max-w-4xl mx-auto px-4 pt-6 pb-12">
+<div id="contentContainer">
+<div id="calculatorContainer"></div>
+</div>
+</main>
+​<div id="bottomNav" class="fixed bottom-3 left-1/2 -translate-x-1/2 z-30 w-[92%] max-w-lg bg-white/90 dark:bg-navy-900/90 backdrop-blur-md border border-gray-200 dark:border-navy-700/80 rounded-2xl shadow-xl px-2 py-2">
+<div class="flex items-center justify-around">
+<button class="nav-bottom-btn flex flex-col items-center gap-1 p-2 rounded-xl text-amber-500 transition" data-target="home">
+<i data-lucide="home" class="w-5 h-5"></i>
+<span class="text-[10px] font-medium" data-i18n="navHome">Домой</span>
+</button>
+<button class="nav-bottom-btn flex flex-col items-center gap-1 p-2 rounded-xl text-gray-500 dark:text-gray-400 hover:text-amber-500 transition" data-target="about">
+<i data-lucide="info" class="w-5 h-5"></i>
+<span class="text-[10px] font-medium" data-i18n="navAbout">О нас</span>
+</button>
+<button class="nav-bottom-btn flex flex-col items-center gap-1 p-2 rounded-xl text-gray-500 dark:text-gray-400 hover:text-amber-500 transition" data-target="contacts">
+<i data-lucide="phone" class="w-5 h-5"></i>
+<span class="text-[10px] font-medium" data-i18n="navContacts">Контакты</span>
+</button>
+<button class="nav-bottom-btn flex flex-col items-center gap-1 p-2 rounded-xl text-gray-500 dark:text-gray-400 hover:text-amber-500 transition" data-target="privacy">
+<i data-lucide="shield-check" class="w-5 h-5"></i>
+<span class="text-[10px] font-medium" data-i18n="navPrivacy">Приваси</span>
+</button>
+</div>
+</div>
+​<div id="shareModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+<div class="bg-white dark:bg-navy-900 border border-gray-200 dark:border-navy-700 rounded-2xl p-6 max-w-sm w-full shadow-2xl relative">
+<button id="closeShareModal" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-white">
+<i data-lucide="x" class="w-5 h-5"></i>
+</button>
+<div class="text-center space-y-3">
+<div class="w-12 h-12 bg-amber-500/10 text-amber-500 rounded-full flex items-center justify-center mx-auto">
+<i data-lucide="share-2" class="w-6 h-6"></i>
+</div>
+<h3 class="font-bold text-lg" data-i18n="shareTitle">Поделиться приложением</h3>
+<p class="text-sm text-gray-500 dark:text-gray-400" data-i18n="shareDesc">Отправьте ссылку коллегам или друзьям-строителям</p>
+<div class="flex items-center gap-2 bg-gray-100 dark:bg-navy-950 p-2 rounded-xl border border-gray-200 dark:border-navy-800">
+<input type="text" id="shareUrlInput" readonly value="https://pomogator-builder.app" class="bg-transparent text-xs flex-1 border-none focus:outline-none px-2 font-mono">
+<button id="copyShareBtn" class="bg-amber-500 hover:bg-amber-600 text-white text-xs px-3 py-1.5 rounded-lg font-medium transition flex items-center gap-1">
+<i data-lucide="copy" class="w-3.5 h-3.5"></i>
+<span id="copyBtnText">Копия</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+​<script>
+const translations = {
+ru: {
+appTitle: "Помогатор Строителя",
+headerSubtitle: "Профессиональный расчёт",
+shareBtnText: "Поделиться",
+menuHeader: "Калькуляторы",
+settingsHeader: "НАСТРОЙКИ",
+themeLabel: "Тёмный режим",
+langLabel: "Язык интерфейса",
+navHome: "Домой",
+navAbout: "О нас",
+navContacts: "Контакты",
+navPrivacy: "Приваси",
+shareTitle: "Поделиться приложением",
+shareDesc: "Скопируйте ссылку и отправьте коллегам"
+},
+en: {
+appTitle: "Builder Helper",
+headerSubtitle: "Professional calculation",
+shareBtnText: "Share",
+menuHeader: "Calculators",
+settingsHeader: "SETTINGS",
+themeLabel: "Dark mode",
+langLabel: "Language",
+navHome: "Home",
+navAbout: "About Us",
+navContacts: "Contacts",
+navPrivacy: "Privacy",
+shareTitle: "Share Application",
+shareDesc: "Copy the link and send to colleagues"
+},
+uz: {
+appTitle: "Quruvchi Yordamchisi",
+headerSubtitle: "Professional hisob-kitob",
+shareBtnText: "Ulashish",
+menuHeader: "Kalkulyatorlar",
+settingsHeader: "SOZLAMALAR",
+themeLabel: "Tungi rejim",
+langLabel: "Interfeys tili",
+navHome: "Bosh sahifa",
+navAbout: "Biz haqimizda",
+navContacts: "Aloqa",
+navPrivacy: "Maxfiylik",
+shareTitle: "Ilovani ulashish",
+shareDesc: "Hujjat havola nusxasini ko'chiring va hamkasblarga yuboring"
+},
+tg: {
+appTitle: "Мададгори Сохтмончӣ",
+headerSubtitle: "Ҳисоботи касбӣ",
+shareBtnText: "Баҳамдиҳӣ",
+menuHeader: "Калкуляторҳо",
+settingsHeader: "ТАНЗИМОТ",
+themeLabel: "Ҳолати торик",
+langLabel: "Забони интерфейс",
+navHome: "Асосӣ",
+navAbout: "Дар бораи мо",
+navContacts: "Тамос",
+navPrivacy: "Маҳрамият",
+shareTitle: "Фиристодани барнома",
+shareDesc: "Истинодро нусхабардорӣ кунед ва ба ҳамкорон фиристед"
+},
+hy: {
+appTitle: "Շինարարի Օգնական",
+headerSubtitle: "Պրոֆեսիոնալ հաշվարկ",
+shareBtnText: "Կիսվել",
+menuHeader: "Հաշվիչներ",
+settingsHeader: "ԿԱՐԳԱՎՈՐՈՒՄՆԵՐ",
+themeLabel: "Մութ ռեժիմ",
+langLabel: "Լեզու",
+navHome: "Գլխավոր",
+navAbout: "Մեր մասին",
+navContacts: "Կապ",
+navPrivacy: "Գաղտնիություն",
+shareTitle: "Կիսվել հավելվածով",
+shareDesc: "Պատճենեք հղումը և ուղարկեք գործընկերներին"
+},
+be: {
+appTitle: "Памагатар Будаўніка",
+headerSubtitle: "Прафесійны разлік",
+shareBtnText: "Падзяліцца",
+menuHeader: "Калькулятары",
+settingsHeader: "НАЛАДКТ",
+themeLabel: "Цёмны рэжым",
+langLabel: "Мова інтэрфейсу",
+navHome: "Дадому",
+navAbout: "Пра нас",
+navContacts: "Кантакты",
+navPrivacy: "Прыватнасць",
+shareTitle: "Падзяліцца дадаткам",
+shareDesc: "Скапіруйце спасылку і адпраўце калегам"
+},
+ka: {
+appTitle: "მშენებლის დამხმარე",
+headerSubtitle: "პროფესიონალური გამოთვლა",
+shareBtnText: "გაზიარება",
+menuHeader: "კალკულატორები",
+settingsHeader: "პარამეტრები",
+themeLabel: "მუქი რეჟიმი",
+langLabel: "ინტერფეისის ენა",
+navHome: "მთავარი",
+navAbout: "ჩვენ შესახებ",
+navContacts: "კონტაქტები",
+navPrivacy: "კონფიდენციალურობა",
+shareTitle: "აპლიკაციის გაზიარება",
+shareDesc: "დააკოპირეთ ბმული და გაუგზავნეთ კოლეგებს"
+},
+mo: {
+appTitle: "Ajutorul Constructorului",
+headerSubtitle: "Calcul profesional",
+shareBtnText: "Distribuie",
+menuHeader: "Calculatoare",
+settingsHeader: "SETĂRI",
+themeLabel: "Mod întunecat",
+langLabel: "Limba interfeței",
+navHome: "Acasă",
+navAbout: "Despre noi",
+navContacts: "Contacte",
+navPrivacy: "Confidențialitate",
+shareTitle: "Distribuie aplicația",
+shareDesc: "Copiați linkul și trimiteți-l colegilor"
+},
+ky: {
+appTitle: "Куруучунун Жардамчысы",
+headerSubtitle: "Кесиптик эсептөө",
+shareBtnText: "Бөлүшүү",
+menuHeader: "Калькуляторлор",
+settingsHeader: "ЖӨНӨТҮҮЛӨР",
+themeLabel: "Караңгы режим",
+langLabel: "Интерфейс тили",
+navHome: "Башкы",
+navAbout: "Биз жөнүндө",
+navContacts: "Байланыштар",
+navPrivacy: "Купуялуулук",
+shareTitle: "Тиркемени бөлүшүү",
+shareDesc: "Шилтемени көчүрүп кесиптештерге жөнөтүңүз"
+},
+kk: {
+appTitle: "Құрылысшы Көмекшісі",
+headerSubtitle: "Кәсіби есептеу",
+shareBtnText: "Бөлісу",
+menuHeader: "Калькуляторлар",
+settingsHeader: "ПАРAМЕТРЛЕР",
+themeLabel: "Қараңғы режим",
+langLabel: "Интерфейс тілі",
+navHome: "Басты",
+navAbout: "Біз туралы",
+navContacts: "Байланыстар",
+navPrivacy: "Құпиялылық",
+shareTitle: "Қолданбаны бөлісу",
+shareDesc: "Сілтемені көшіріп, әріптестерге жіберіңіз"
+}
+};
+​const calculators = [
+{
+id: 'puttiness',
+name: 'Шпаклёвка',
+icon: 'layers',
+desc: 'Расчёт расхода шпаклёвки по типу смеси и площади',
+fields: [
+{ id: 'type', label: 'Вид шпаклёвки', type: 'select', options: [
+{ label: 'Финишная (1.2 кг/м²/мм)', value: 1.2 },
+{ label: 'Стартовая (1.5 кг/м²/мм)', value: 1.5 },
+{ label: 'Штукатурная (1.0 кг/м²/мм)', value: 1.0 },
+{ label: 'Суперфиниш (1.1 кг/м²/мм)', value: 1.1 }
+]},
+{ id: 'area', label: 'Площадь стен (м²)', type: 'number', value: 25 },
+{ id: 'thick', label: 'Толщина слоя (мм)', type: 'number', value: 2 },
+{ id: 'bag', label: 'Вес мешка (кг)', type: 'number', value: 20 }
+],
+calc: (v) => {
+const totalKg = v.area * v.type * v.thick;
+const bags = Math.ceil(totalKg / (v.bag || 1));
+return { totalKg: totalKg.toFixed(1), bags };
+},
+renderResult: (r) => <p class="font-bold text-base">Результат расчёта:</p> <p class="text-sm">Общий вес: <strong class="text-amber-500">${r.totalKg} кг</strong></p> <p class="text-sm">Потребуется мешков: <strong class="text-amber-500 text-lg">${r.bags} шт.</strong></p>
+},
+{
+id: 'wallpaper',
+name: 'Обои по стенам',
+icon: 'grid',
+desc: 'Расчёт рулонов обоев с учётом окон и дверей',
+fields: [
+{ id: 'length', label: 'Длина комнаты (м)', type: 'number', value: 5 },
+{ id: 'width', label: 'Ширина комнаты (м)', type: 'number', value: 4 },
+{ id: 'height', label: 'Высота потолка (м)', type: 'number', value: 2.7 },
+{ id: 'rollSize', label: 'Размер рулона', type: 'select', options: [
+{ label: '0.53 м х 10.05 м', value: '0.53_10' },
+{ label: '1.06 м х 10.05 м (Евро)', value: '1.06_10' },
+{ label: '1.06 м х 25 м', value: '1.06_25' }
+]},
+{ id: 'deductions', label: 'Вычет окон и дверей (м²)', type: 'number', value: 6 },
+{ id: 'repeat', label: 'Раппорт/подгонка рисунка (см)', type: 'number', value: 0 }
+],
+calc: (v) => {
+const perimeter = (v.length + v.width) * 2;
+const wallArea = perimeter * v.height - v.deductions;
+let rollW = 0.53, rollL = 10;
+if (v.rollSize === '1.06_10') { rollW = 1.06; rollL = 10; }
+if (v.rollSize === '1.06_25') { rollW = 1.06; rollL = 25; }
+​const singleStripLen = v.height + (v.repeat / 100);
+const stripsPerRoll = Math.floor(rollL / singleStripLen);
+const totalStripsNeeded = Math.ceil(perimeter / rollW);
+const rollsNeeded = Math.ceil(totalStripsNeeded / (stripsPerRoll || 1));
+​return { wallArea: wallArea.toFixed(1), rollsNeeded, totalStripsNeeded };
+},
+renderResult: (r) => <p class="font-bold text-base">Результат расчёта:</p> <p class="text-sm">Площадь оклейки: <strong class="text-amber-500">${r.wallArea} м²</strong></p> <p class="text-sm">Всего полос: <strong class="text-amber-500">${r.totalStripsNeeded} шт.</strong></p> <p class="text-sm">Потребуется рулонов: <strong class="text-amber-500 text-lg">${r.rollsNeeded} шт.</strong></p>
+},
+{
+id: 'paint',
+name: 'Краска (все виды)',
+icon: 'paint-bucket',
+desc: 'Расчёт краски для всех видов поверхностей и составов',
+fields: [
+{ id: 'type', label: 'Тип краски', type: 'select', options: [
+{ label: 'Водоэмульсионная (120 мл/м²)', value: 120 },
+{ label: 'Акриловая (150 мл/м²)', value: 150 },
+{ label: 'Латексная (110 мл/м²)', value: 110 },
+{ label: 'Силиконовая (140 мл/м²)', value: 140 },
+{ label: 'Эмаль НЦ/ПФ (160 мл/м²)', value: 160 },
+{ label: 'Фасадная (180 мл/м²)', value: 180 }
+]},
+{ id: 'area', label: 'Площадь окраски (м²)', type: 'number', value: 40 },
+{ id: 'layers', label: 'Количество слоёв', type: 'number', value: 2 },
+{ id: 'margin', label: 'Запас (%)', type: 'number', value: 10 }
+],
+calc: (v) => {
+const totalLiters = (v.area * v.type * v.layers * (1 + v.margin / 100)) / 1000;
+return { liters: totalLiters.toFixed(2) };
+},
+renderResult: (r) => <p class="font-bold text-base">Результат расчёта:</p> <p class="text-sm">Необходимый объём: <strong class="text-amber-500 text-lg">${r.liters} л</strong></p>
+},
+{
+id: 'collering',
+name: 'Колеровка',
+icon: 'palette',
+desc: 'Расчёт колер-пасты для всех типов смесей',
+fields: [
+{ id: 'mixType', label: 'Вид колеруемой смеси', type: 'select', options: [
+{ label: 'Водоэмульсионная краска', value: 'paint' },
+{ label: 'Декоративная штукатурка', value: 'stucco' },
+{ label: 'Акриловая шпаклёвка', value: 'putty' },
+{ label: 'Лаки и эмали', value: 'varnish' }
+]},
+{ id: 'volume', label: 'Объём основной базы (л/кг)', type: 'number', value: 10 },
+{ id: 'intensity', label: 'Насыщенность тона', type: 'select', options: [
+{ label: 'Пастельный (1% колера)', value: 0.01 },
+{ label: 'Средний тон (3% колера)', value: 0.03 },
+{ label: 'Насыщенный (5% колера)', value: 0.05 },
+{ label: 'Яркий/Ядовитый (10% колера)', value: 0.10 }
+]}
+],
+calc: (v) => {
+const colorantMl = v.volume * v.intensity * 1000;
+return { colorantMl: colorantMl.toFixed(0) };
+},
+renderResult: (r) => <p class="font-bold text-base">Результат колеровки:</p> <p class="text-sm">Объём колер-пасты: <strong class="text-amber-500 text-lg">${r.colorantMl} мл</strong></p>
+},
+{
+id: 'concrete-sand',
+name: 'Цемент и песок',
+icon: 'box',
+desc: 'Расчёт компонентов раствора по марке цемента',
+fields: [
+{ id: 'mark', label: 'Марка цемента / раствора', type: 'select', options: [
+{ label: 'Раствор М75 (Цемент М400 + 4.5 песка)', value: 'M75' },
+{ label: 'Раствор М100 (Цемент М400 + 3.5 песка)', value: 'M100' },
+{ label: 'Раствор М150 (Цемент М400 + 2.8 песка)', value: 'M150' },
+{ label: 'Бетон М200 (Цемент М400 + 2.8 песка + 4.8 щебня)', value: 'M200' }
+]},
+{ id: 'volume', label: 'Требуемый объём раствора (м³)', type: 'number', value: 1 }
+],
+calc: (v) => {
+let cementKg = 300, sandKg = 1200, gravelKg = 0;
+if (v.mark === 'M75') { cementKg = 260; sandKg = 1250; }
+if (v.mark === 'M100') { cementKg = 320; sandKg = 1150; }
+if (v.mark === 'M150') { cementKg = 400; sandKg = 1100; }
+if (v.mark === 'M200') { cementKg = 330; sandKg = 850; gravelKg = 1250; }
+​return {
+cement: (cementKg * v.volume).toFixed(0),
+cementBags: Math.ceil((cementKg * v.volume) / 50),
+sand: (sandKg * v.volume).toFixed(0),
+gravel: (gravelKg * v.volume).toFixed(0)
+};
+},
+renderResult: (r) => <p class="font-bold text-base">Результат расчёта:</p> <p class="text-sm">Цемент (М400): <strong class="text-amber-500">${r.cement} кг</strong> (${r.cementBags} меш. по 50кг)</p> <p class="text-sm">Песок: <strong class="text-amber-500">${r.sand} кг</strong></p> ${r.gravel > 0 ?<p class="text-sm">Щебень: <strong class="text-amber-500">{r.gravel} кг</strong></p>` : ''}
+`
+},
+{
+id: 'decor-stucco',
+name: 'Декоративная штукатурка',
+icon: 'sparkles',
+desc: 'Все виды декоративных покрытий',
+fields: [
+{ id: 'type', label: 'Вид покрытия', type: 'select', options: [
+{ label: 'Короед (2.5 - 3.5 кг/м²)', value: 3.0 },
+{ label: 'Барашек (2.0 - 3.0 кг/м²)', value: 2.5 },
+{ label: 'Венецианская (0.6 - 1.0 кг/м²)', value: 0.8 },
+{ label: 'Шелк / Велюр (0.2 - 0.5 кг/м²)', value: 0.35 },
+{ label: 'Арт-бетон / Травертин (1.8 - 2.5 кг/м²)', value: 2.1 }
+]},
+{ id: 'area', label: 'Площадь нанесения (м²)', type: 'number', value: 20 },
+{ id: 'primer', label: 'Нужна грунтовка под штукатурку?', type: 'select', options: [
+{ label: 'Да (Бетоноконтакт / Кварц-грунт)', value: 0.3 },
+{ label: 'Нет', value: 0 }
+]}
+],
+calc: (v) => {
+const totalKg = v.area * v.type;
+const primerKg = v.area * v.primer;
+return { totalKg: totalKg.toFixed(1), primerKg: primerKg.toFixed(1) };
+},
+renderResult: (r) => `
+<p class="font-bold text-base">Результат расчёта:</p>
+<p class="text-sm">Штукатурка: <strong class="text-amber-500 text-lg">${r.totalKg} кг</strong></p>
+${r.primerKg > 0 ? `<p class="text-sm">Кварц-грунт: <strong class="text-amber-500">{r.primerKg} кг</strong></p>: ''}
+},
+{
+id: 'penoplex',
+name: 'Обшивка пеноплексом',
+icon: 'shield',
+desc: 'Расчёт XPS панелей и клея',
+fields: [
+{ id: 'area', label: 'Площадь утепления (м²)', type: 'number', value: 30 },
+{ id: 'thickness', label: 'Толщина плиты', type: 'select', options: [
+{ label: '20 мм (0.288 м² в плите, 20 шт/пач)', value: '20' },
+{ label: '30 мм (0.288 м² в плите, 13 шт/пач)', value: '30' },
+{ label: '50 мм (0.288 м² в плите, 8 шт/пач)', value: '50' },
+{ label: '100 мм (0.288 м² в плите, 4 шт/пач)', value: '100' }
+]}
+],
+calc: (v) => {
+const sheetArea = 0.288;
+const totalSheets = Math.ceil(v.area / sheetArea);
+let perPack = 8;
+if (v.thickness === '20') perPack = 20;
+if (v.thickness === '30') perPack = 13;
+if (v.thickness === '100') perPack = 4;
+const packs = Math.ceil(totalSheets / perPack);
+const foamCans = Math.ceil(v.area / 10);
+​return { totalSheets, packs, foamCans };
+},
+renderResult: (r) => <p class="font-bold text-base">Результат расчёта:</p> <p class="text-sm">Всего плит: <strong class="text-amber-500">${r.totalSheets} шт.</strong></p> <p class="text-sm">Упаковок: <strong class="text-amber-500 text-lg">${r.packs} пач.</strong></p> <p class="text-sm">Клей-пена (баллоны 750мл): <strong class="text-amber-500">${r.foamCans} шт.</strong></p>
+},
+{
+id: 'pvc-panels',
+name: 'ПВХ панели',
+icon: 'layout',
+desc: 'Расчёт стеновых и потолочных ПВХ панелей',
+fields: [
+{ id: 'length', label: 'Длина стены/потолка (м)', type: 'number', value: 4 },
+{ id: 'width', label: 'Ширина/Высота (м)', type: 'number', value: 2.5 },
+{ id: 'panelW', label: 'Ширина панели', type: 'select', options: [
+{ label: '250 мм (0.25 м)', value: 0.25 },
+{ label: '375 мм (0.375 м)', value: 0.375 },
+{ label: '500 мм (0.50 м)', value: 0.50 },
+{ label: '100 мм (Вагонка 0.1 м)', value: 0.10 }
+]},
+{ id: 'panelL', label: 'Длина панели', type: 'select', options: [
+{ label: '2.7 м', value: 2.7 },
+{ label: '3.0 м', value: 3.0 },
+{ label: '6.0 м', value: 6.0 }
+]}
+],
+calc: (v) => {
+const totalArea = v.length * v.width;
+const countByWidth = Math.ceil(v.length / v.panelW);
+const profilesCount = Math.ceil((v.length * 2 + v.width * 2) / 3);
+return { totalArea: totalArea.toFixed(1), panels: countByWidth, profilesCount };
+},
+renderResult: (r) => <p class="font-bold text-base">Результат расчёта:</p> <p class="text-sm">Площадь: <strong class="text-amber-500">${r.totalArea} м²</strong></p> <p class="text-sm">Количество панелей: <strong class="text-amber-500 text-lg">${r.panels} шт.</strong></p> <p class="text-sm">Стартовый профиль (3м): <strong class="text-amber-500">${r.profilesCount} шт.</strong></p>
+},
+{
+id: 'floor-tile',
+name: 'Напольная плитка',
+icon: 'grid',
+desc: 'Расчёт керамической плитки и керамогранита',
+fields: [
+{ id: 'area', label: 'Площадь пола (м²)', type: 'number', value: 15 },
+{ id: 'tileSize', label: 'Размер плитки (см)', type: 'select', options: [
+{ label: '30 x 30 см', value: '30x30' },
+{ label: '40 x 40 см', value: '40x40' },
+{ label: '60 x 60 см (Керамогранит)', value: '60x60' },
+{ label: '120 x 60 см', value: '120x60' },
+{ label: '15 x 60 см (Под дерево)', value: '15x60' }
+]},
+{ id: 'layout', label: 'Укладка', type: 'select', options: [
+{ label: 'Прямая (+10% запаса)', value: 1.10 },
+{ label: 'Диагональная (+15% запаса)', value: 1.15 }
+]}
+],
+calc: (v) => {
+let w = 0.3, h = 0.3;
+if (v.tileSize === '40x40') { w = 0.4; h = 0.4; }
+if (v.tileSize === '60x60') { w = 0.6; h = 0.6; }
+if (v.tileSize === '120x60') { w = 1.2; h = 0.6; }
+if (v.tileSize === '15x60') { w = 0.15; h = 0.6; }
+​const tileArea = w * h;
+const totalTiles = Math.ceil((v.area * v.layout) / tileArea);
+const glueBags = Math.ceil((v.area * 4.5) / 25);
+​return { totalTiles, glueBags };
+},
+renderResult: (r) => <p class="font-bold text-base">Результат расчёта:</p> <p class="text-sm">Плитки с учётом запаса: <strong class="text-amber-500 text-lg">${r.totalTiles} шт.</strong></p> <p class="text-sm">Плиточный клей (25кг): <strong class="text-amber-500">${r.glueBags} меш.</strong></p>
+},
+{
+id: 'masonry',
+name: 'Кладка блоков и кирпича',
+icon: 'bricks',
+desc: 'Кирпич, керамзитоблок, газоблок',
+fields: [
+{ id: 'material', label: 'Материал кладки', type: 'select', options: [
+{ label: 'Кирпич одинарный (250х120х65 мм)', value: 'brick_single' },
+{ label: 'Кирпич полуторный (250х120х88 мм)', value: 'brick_oneandhalf' },
+{ label: 'Газоблок (600х300х200 мм)', value: 'gas_block' },
+{ label: 'Керамзитоблок (390х190х190 мм)', value: 'clay_block' }
+]},
+{ id: 'wallLen', label: 'Длина стен (м)', type: 'number', value: 20 },
+{ id: 'wallH', label: 'Высота стен (м)', type: 'number', value: 3 },
+{ id: 'thickness', label: 'Толщина кладки', type: 'select', options: [
+{ label: 'В полкирпича / полблока', value: 'half' },
+{ label: 'В один кирпич / блок', value: 'full' }
+]}
+],
+calc: (v) => {
+const area = v.wallLen * v.wallH;
+let perM2 = 51;
+if (v.material === 'brick_single' && v.thickness === 'full') perM2 = 102;
+if (v.material === 'brick_oneandhalf' && v.thickness === 'half') perM2 = 39;
+if (v.material === 'brick_oneandhalf' && v.thickness === 'full') perM2 = 78;
+if (v.material === 'gas_block' && v.thickness === 'half') perM2 = 8.3;
+if (v.material === 'gas_block' && v.thickness === 'full') perM2 = 16.6;
+if (v.material === 'clay_block' && v.thickness === 'half') perM2 = 12.5;
+if (v.material === 'clay_block' && v.thickness === 'full') perM2 = 25;
+​const totalUnits = Math.ceil(area * perM2);
+return { area: area.toFixed(1), totalUnits };
+},
+renderResult: (r) => <p class="font-bold text-base">Результат расчёта:</p> <p class="text-sm">Площадь кладки: <strong class="text-amber-500">${r.area} м²</strong></p> <p class="text-sm">Необходимо элементов: <strong class="text-amber-500 text-lg">${r.totalUnits} шт.</strong></p>
+},
+{
+id: 'ceiling-tile',
+name: 'Потолочная плитка',
+icon: 'square',
+desc: 'Расчёт пенопластовой плитки на потолок',
+fields: [
+{ id: 'length', label: 'Длина комнаты (м)', type: 'number', value: 4 },
+{ id: 'width', label: 'Ширина комнаты (м)', type: 'number', value: 3 },
+{ id: 'tileSize', label: 'Размер плитки', type: 'select', options: [
+{ label: '50 x 50 см', value: 0.25 },
+{ label: '30 x 30 см', value: 0.09 },
+{ label: '60 x 60 см', value: 0.36 }
+]}
+],
+calc: (v) => {
+const area = v.length * v.width;
+const count = Math.ceil((area * 1.1) / v.tileSize);
+const glueKg = Math.ceil(area * 0.25);
+return { area: area.toFixed(1), count, glueKg };
+},
+renderResult: (r) => <p class="font-bold text-base">Результат расчёта:</p> <p class="text-sm">Площадь потолка: <strong class="text-amber-500">${r.area} м²</strong></p> <p class="text-sm">Плитки (с запасом 10%): <strong class="text-amber-500 text-lg">${r.count} шт.</strong></p> <p class="text-sm">Клей жидкие гвозди/мастика: <strong class="text-amber-500">~${r.glueKg} кг</strong></p>
+},
+{
+id: 'plinth',
+name: 'Плинтус',
+icon: 'minus',
+desc: 'Расчёт напольного и потолочного плинтуса',
+fields: [
+{ id: 'perimeter', label: 'Периметр помещения (м)', type: 'number', value: 18 },
+{ id: 'doors', label: 'Ширина дверных проёмов (м)', type: 'number', value: 0.9 },
+{ id: 'plinthLen', label: 'Длина одной планки (м)', type: 'number', value: 2.5 }
+],
+calc: (v) => {
+const netPerimeter = Math.max(0, v.perimeter - v.doors);
+const count = Math.ceil((netPerimeter * 1.05) / v.plinthLen);
+return { netPerimeter: netPerimeter.toFixed(1), count };
+},
+renderResult: (r) => <p class="font-bold text-base">Результат расчёта:</p> <p class="text-sm">Чистый периметр: <strong class="text-amber-500">${r.netPerimeter} м</strong></p> <p class="text-sm">Планки плинтуса: <strong class="text-amber-500 text-lg">${r.count} шт.</strong></p>
+},
+{
+id: 'self-leveling',
+name: 'Наливной пол / Стяжка',
+icon: 'box',
+desc: 'Расчёт смеси для выравнивания полов',
+fields: [
+{ id: 'area', label: 'Площадь пола (м²)', type: 'number', value: 20 },
+{ id: 'thick', label: 'Толщина слоя (мм)', type: 'number', value: 10 },
+{ id: 'rate', label: 'Расход смеси (кг/м²/мм)', type: 'number', value: 1.5 },
+{ id: 'bag', label: 'Вес мешка (кг)', type: 'number', value: 25 }
+],
+calc: (v) => {
+const totalKg = v.area * v.thick * v.rate;
+const bags = Math.ceil(totalKg / (v.bag || 1));
+return { totalKg: totalKg.toFixed(1), bags };
+},
+renderResult: (r) => <p class="font-bold text-base">Результат расчёта:</p> <p class="text-sm">Смеси всего: <strong class="text-amber-500">${r.totalKg} кг</strong></p> <p class="text-sm">Потребуется мешков: <strong class="text-amber-500 text-lg">${r.bags} шт.</strong></p>
+}
+];
+​let currentLang = 'ru';
+let activeCalcId = 'puttiness';
+let activeTab = 'home';
+​document.addEventListener('DOMContentLoaded', () => {
+initSidebar();
+initTheme();
+initLanguage();
+initShareModal();
+initBottomNav();
+renderSidebarMenu();
+renderCalculator(activeCalcId);
+lucide.createIcons();
+});
+​function initSidebar() {
+const sidebar = document.getElementById('sidebar');
+const overlay = document.getElementById('sidebarOverlay');
+document.getElementById('openSidebarBtn').addEventListener('click', () => {
+sidebar.classList.remove('-translate-x-full');
+overlay.classList.remove('hidden');
+});
+const close = () => {
+sidebar.classList.add('-translate-x-full');
+overlay.classList.add('hidden');
+};
+document.getElementById('closeSidebarBtn').addEventListener('click', close);
+overlay.addEventListener('click', close);
+}
+​function initTheme() {
+document.getElementById('themeToggle').addEventListener('change', (e) => {
+if (e.target.checked) document.documentElement.classList.add('dark');
+else document.documentElement.classList.remove('dark');
+});
+}
+​function initLanguage() {
+document.getElementById('langSelect').addEventListener('change', (e) => {
+currentLang = e.target.value;
+applyTranslations();
+});
+}
+​function applyTranslations() {
+const lang = translations[currentLang] || translations.ru;
+document.querySelectorAll('[data-i18n]').forEach(el => {
+const key = el.getAttribute('data-i18n');
+if (lang[key]) el.textContent = lang[key];
+});
+document.getElementById('appTitle').textContent = lang.appTitle;
+document.getElementById('headerSubtitle').textContent = lang.headerSubtitle;
+document.getElementById('shareBtnText').textContent = lang.shareBtnText;
+document.getElementById('menuHeader').textContent = lang.menuHeader;
+document.getElementById('settingsHeader').textContent = lang.settingsHeader;
+document.getElementById('themeLabel').textContent = lang.themeLabel;
+document.getElementById('langLabel').textContent = lang.langLabel;
+}
+​function initShareModal() {
+const modal = document.getElementById('shareModal');
+document.getElementById('shareBtn').addEventListener('click', () => {
+modal.classList.remove('hidden');
+modal.classList.add('flex');
+});
+document.getElementById('closeShareModal').addEventListener('click', () => {
+modal.classList.add('hidden');
+modal.classList.remove('flex');
+});
+document.getElementById('copyShareBtn').addEventListener('click', () => {
+const input = document.getElementById('shareUrlInput');
+input.select();
+document.execCommand('copy');
+document.getElementById('copyBtnText').textContent = 'Готово!';
+setTimeout(() => { document.getElementById('copyBtnText').textContent = 'Копия'; }, 2000);
+});
+}
+​function initBottomNav() {
+document.querySelectorAll('.nav-bottom-btn').forEach(btn => {
+btn.addEventListener('click', () => {
+const target = btn.getAttribute('data-target');
+activeTab = target;
+​document.querySelectorAll('.nav-bottom-btn').forEach(b => {
+b.classList.remove('text-amber-500');
+b.classList.add('text-gray-500', 'dark:text-gray-400');
+});
+btn.classList.add('text-amber-500');
+btn.classList.remove('text-gray-500', 'dark:text-gray-400');
+​renderTabContent(target);
+});
+});
+}
+​function renderSidebarMenu() {
+const container = document.getElementById('sidebarMenuList');
+container.innerHTML = calculators.map(item => {
+const isActive = item.id === activeCalcId && activeTab === 'home';
+const activeClasses = isActive
+? 'bg-amber-500 text-white font-semibold shadow-md shadow-amber-500/20'
+: 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-navy-800';
+​return <button onclick="switchCalculator('${item.id}')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition ${activeClasses}"> <i data-lucide="${item.icon || 'calculator'}" class="w-4 h-4"></i> <span>${item.name}</span> </button>;
+}).join('');
+lucide.createIcons();
+}
+​function switchCalculator(id) {
+activeCalcId = id;
+activeTab = 'home';
+renderSidebarMenu();
+renderCalculator(id);
+document.getElementById('sidebar').classList.add('-translate-x-full');
+document.getElementById('sidebarOverlay').classList.add('hidden');
+}
+​function renderTabContent(target) {
+const container = document.getElementById('contentContainer');
+if (target === 'home') {
+renderCalculator(activeCalcId);
+} else if (target === 'about') {
+container.innerHTML = <div class="bg-white dark:bg-navy-900 border border-gray-200 dark:border-navy-800 rounded-2xl p-6 shadow-lg space-y-4"> <h2 class="text-xl font-bold text-amber-500 flex items-center gap-2"> <i data-lucide="info" class="w-6 h-6"></i> О приложении «Помогатор Строителя» </h2> <p class="text-sm leading-relaxed text-gray-600 dark:text-gray-300"> <strong>Помогатор Строителя</strong> — это удобный универсальный карманный калькулятор для мастеров, прорабов и всех, кто делает ремонт своими руками. </p> <p class="text-sm leading-relaxed text-gray-600 dark:text-gray-300"> Все расчёты выполняются мгновенно прямо на вашем устройстве с минимальными погрешностями и учётом технологических запасов материалов. </p> </div>;
+} else if (target === 'contacts') {
+container.innerHTML = <div class="bg-white dark:bg-navy-900 border border-gray-200 dark:border-navy-800 rounded-2xl p-6 shadow-lg space-y-4"> <h2 class="text-xl font-bold text-amber-500 flex items-center gap-2"> <i data-lucide="phone" class="w-6 h-6"></i> Контакты и поддержка </h2> <p class="text-sm text-gray-600 dark:text-gray-300">По вопросам сотрудничества, обратной связи и пожеланий:</p> <ul class="space-y-2 text-sm"> <li class="flex items-center gap-2"><i data-lucide="mail" class="w-4 h-4 text-amber-500"></i> support@pomogator-builder.app</li> <li class="flex items-center gap-2"><i data-lucide="message-square" class="w-4 h-4 text-amber-500"></i> Telegram: @builder_helper_bot</li> </ul> </div>;
+} else if (target === 'privacy') {
+container.innerHTML = <div class="bg-white dark:bg-navy-900 border border-gray-200 dark:border-navy-800 rounded-2xl p-6 shadow-lg space-y-4"> <h2 class="text-xl font-bold text-amber-500 flex items-center gap-2"> <i data-lucide="shield-check" class="w-6 h-6"></i> Политика приватности </h2> <p class="text-sm leading-relaxed text-gray-600 dark:text-gray-300"> Приложение не собирает, не передаёт и не хранит ваши личные персональные данные на сторонних серверах. Все вычисления производятся локально в вашем браузере. </p> </div>;
+}
+lucide.createIcons();
+}
+​function renderCalculator(id) {
+const container = document.getElementById('contentContainer');
+const calc = calculators.find(c => c.id === id) || calculators[0];
+​if (!calc) return;
+​let fieldsHtml = calc.fields.map(f => {
+if (f.type === 'select') {
+const optionsHtml = f.options.map(o => <option value="${o.value}">${o.label}</option>).join('');
+return <div> <label class="block text-xs font-semibold mb-1">${f.label}</label> <select id="field_${f.id}" class="w-full bg-gray-50 dark:bg-navy-800 border border-gray-300 dark:border-navy-700 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none"> ${optionsHtml} </select> </div>;
+}
+return <div> <label class="block text-xs font-semibold mb-1">${f.label}</label> <input type="${f.type || 'number'}" id="field_${f.id}" value="${f.value}" class="w-full bg-gray-50 dark:bg-navy-800 border border-gray-300 dark:border-navy-700 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none"> </div>;
+}).join('');
+​container.innerHTML = <div class="bg-white dark:bg-navy-900 border border-gray-200 dark:border-navy-800 rounded-2xl p-5 shadow-lg space-y-5"> <div class="flex items-center gap-3 border-b border-gray-100 dark:border-navy-800 pb-3"> <div class="p-2.5 bg-amber-500/10 text-amber-500 rounded-xl"><i data-lucide="${calc.icon || 'calculator'}" class="w-6 h-6"></i></div> <div> <h2 class="text-lg font-bold">${calc.name}</h2> <p class="text-xs text-gray-400">${calc.desc || ''}</p> </div> </div> <div class="grid grid-cols-1 md:grid-cols-2 gap-4"> ${fieldsHtml} </div> <button onclick="executeCalculation('${calc.id}')" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-semibold py-3 rounded-xl transition shadow-md shadow-amber-500/20 active:scale-[0.99]">Рассчитать</button> <div id="calcResult" class="hidden p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl space-y-1"></div> </div>;
+lucide.createIcons();
+}
+​function executeCalculation(id) {
+const calc = calculators.find(c => c.id === id);
+if (!calc) return;
+​const fieldValues = {};
+calc.fields.forEach(f => {
+const el = document.getElementById(field_${f.id});
+let val = el.value;
+if (f.type !== 'select' || !isNaN(parseFloat(val))) {
+val = parseFloat(val) || 0;
+}
+fieldValues[f.id] = val;
+});
+​try {
+const res = calc.calc(fieldValues);
+const resDiv = document.getElementById('calcResult');
+resDiv.classList.remove('hidden');
+resDiv.innerHTML = calc.renderResult(res);
+} catch(e) {
+console.error(e);
+}
+}
+</script>
 </body>
 </html>
